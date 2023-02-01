@@ -24,8 +24,8 @@ def fallback(recipient_id):
 def respond_to_user(prompt, recipient_id):
     user = User(recipient_id)
 
-    chatbot.load_conversation_history()
+    # chatbot.load_conversation_history()
     response = chatbot.ask(prompt)
 
     send_api.send_text_message(response["choices"][0]["text"], recipient_id)
-    chatbot.dump_conversation_history()
+    # chatbot.dump_conversation_history()
