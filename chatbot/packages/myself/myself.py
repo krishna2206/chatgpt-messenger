@@ -15,6 +15,12 @@ chatbot = Chatbot(api_key=os.getenv("OPENAI_API_TOKEN"))
 
 
 @block_successive_actions
+def fallback(recipient_id):
+    user = User()
+    send_api.send_text_message("I'm sorry, I don't understand", recipient_id)
+
+
+@block_successive_actions
 def respond_to_user(message, recipient_id):
     user = User()
 
