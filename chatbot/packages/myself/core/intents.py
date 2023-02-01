@@ -4,6 +4,7 @@ from chatbot.packages.myself.core.parsers import get_text_message
 
 INTENTS = [
     {
+        "type": "fallback",
         "name": "fallback",
         "action": fallback,
     },
