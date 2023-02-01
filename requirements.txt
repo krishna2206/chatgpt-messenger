@@ -5,4 +5,4 @@ python-dotenv
 uvicorn
 dnspython
 revChatGPT
-git+krishna2206/messenger-api-python.git@03687e87be09aa534ebdac2fff1861665295df63#egg=messenger-api-python
+git+https://github.com/krishna2206/messenger-api-python.git@03687e87be09aa534ebdac2fff1861665295df63#egg=messenger-api-python
