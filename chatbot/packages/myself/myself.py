@@ -21,11 +21,11 @@ def fallback(recipient_id):
 
 
 @block_successive_actions
-def respond_to_user(message, recipient_id):
+def respond_to_user(prompt, recipient_id):
     user = User()
 
     chatbot.load_conversation_history()
-    response = chatbot.ask(message)
+    response = chatbot.ask(prompt)
 
     send_api.send_text_message(response["choices"][0]["text"], recipient_id)
     chatbot.dump_conversation_history()

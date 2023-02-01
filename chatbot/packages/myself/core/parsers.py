@@ -3,5 +3,5 @@ def get_text_message(message):
 
     return {
         "is_validated": True,
-        "extracted_data": message_text_content
+        "extracted_data": {"prompt": message_text_content}
     }
