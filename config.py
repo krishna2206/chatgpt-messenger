@@ -42,9 +42,6 @@ WEB_CONCURRENCY = __verify_variable("WEB_CONCURRENCY", os.getenv("WEB_CONCURRENC
 
 """Optional variables"""
 APP_STATE = os.getenv("APP_STATE")
-ADMIN_USER_ID = os.getenv("ADMIN_USER_ID")
-DB_FILE = os.getenv("DB_FILE")
-DB_ENCRYPTION_KEY = os.getenv("DB_ENCRYPTION_KEY")
 
 
 """Paths"""
@@ -52,7 +49,7 @@ FILES_FOLDER = __verify_path(f"{APP_LOCATION}/files")
 STATIC_FOLDER = __verify_path(f"{FILES_FOLDER}/static")
 TEMP_FOLDER = __verify_path(f"{FILES_FOLDER}/tmp")
 CACHE_FOLDER = __verify_path(f"{FILES_FOLDER}/cache")
-THUMBNAILS_FOLDER = __verify_path(f"{FILES_FOLDER}/cache/thumbnails")
+CHAT_HISTORIES = __verify_path(f"{CACHE_FOLDER}/chat-histories")
 
 
 """URLs"""
@@ -60,4 +57,3 @@ FILES_URL = f"{APP_URL}/files"
 STATIC_ASSETS_URL = f"{APP_URL}/files/static"
 TEMP_FOLDER_URL = f"{APP_URL}/files/tmp"
 CACHE_FOLDER_URL = f"{APP_URL}/files/cache"
-THUMBNAILS_FOLDER_URL = f"{APP_URL}/files/cache/thumbnails"

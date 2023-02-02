@@ -2,30 +2,36 @@ import os
 
 from dotenv import load_dotenv
 # from fancify_text import bold, italic
-from revChatGPT.Official import Chatbot
 
+from config import CHAT_HISTORIES
 from chatbot.user import User
 from chatbot.sharedinstances import send_api
 
+from .core.dependencies import chatgpt
 from chatbot.packages.common.common import block_successive_actions
 
 load_dotenv()
 
-chatbot = Chatbot(api_key=os.getenv("OPENAI_API_TOKEN"))
+chatbot = chatgpt.Chatbot(api_key=os.getenv("OPENAI_API_TOKEN"))
 
 
 @block_successive_actions
 def fallback(recipient_id):
     user = User(recipient_id)
-    send_api.send_text_message("I'm sorry, I don't understand", recipient_id)
+    send_api.send_text_message("Désolé, je ne comprends pas ce que vous dites.", recipient_id)
 
 
 @block_successive_actions
 def respond_to_user(prompt, recipient_id):
     user = User(recipient_id)
 
-    # chatbot.load_conversation_history()
+    try:
+        chatbot.load_chat_history(f"{CHAT_HISTORIES}/{recipient_id}.json")
+    except FileNotFoundError:
+        print(f"Chat history for user {recipient_id} doesn't exist yet.")
+
     response = chatbot.ask(prompt)
 
     send_api.send_text_message(response["choices"][0]["text"], recipient_id)
-    # chatbot.dump_conversation_history()
+
+    chatbot.dump_chat_history(f"{CHAT_HISTORIES}/{recipient_id}.json")
