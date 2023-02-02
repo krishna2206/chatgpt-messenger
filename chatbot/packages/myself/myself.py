@@ -12,8 +12,6 @@ from chatbot.packages.common.common import block_successive_actions
 
 load_dotenv()
 
-chatbot = chatgpt.Chatbot(api_key=os.getenv("OPENAI_API_TOKEN"))
-
 
 @block_successive_actions
 def fallback(recipient_id):
@@ -25,6 +23,7 @@ def fallback(recipient_id):
 def respond_to_user(prompt, recipient_id):
     user = User(recipient_id)
 
+    chatbot = chatgpt.Chatbot(api_key=os.getenv("OPENAI_API_TOKEN"))
     try:
         chatbot.load_chat_history(f"{CHAT_HISTORIES}/{recipient_id}.json")
     except FileNotFoundError:
