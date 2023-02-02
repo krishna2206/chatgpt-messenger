@@ -144,8 +144,7 @@ class Prompt:
         """
         self.base_prompt = (
             base_prompt
-            or ""
-            # or "You are ChatGPT, a large language model trained by OpenAI.\n\n"
+            or "You are ChatGPT, a large language model trained by OpenAI.\n\n"
         )
         # Track chat history
         self.chat_history: list = []
