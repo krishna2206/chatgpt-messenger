@@ -37,7 +37,7 @@ class Chatbot:
             "id": "...",
             "object": "text_completion",
             "created": <time>,
-            "model": "text-chat-davinci-002-20230126",
+            "model": "text-chat-davinci-002-20221122",
             "choices": [
                 {
                 "text": "<Response here>",
@@ -51,7 +51,7 @@ class Chatbot:
         """
         prompt = self.prompt.construct_prompt(user_request)
         completion = openai.Completion.create(
-            engine="text-chat-davinci-002-20230126",
+            engine="text-chat-davinci-002-20221122",
             prompt=prompt,
             temperature=0.5,
             max_tokens=self.get_max_tokens(prompt),
@@ -84,7 +84,7 @@ class Chatbot:
         """
         prompt = self.prompt.construct_prompt(user_request)
         completion = openai.Completion.create(
-            engine="text-chat-davinci-002-20230126",
+            engine="text-chat-davinci-002-20221122",
             prompt=prompt,
             temperature=0.5,
             max_tokens=self.get_max_tokens(prompt),
