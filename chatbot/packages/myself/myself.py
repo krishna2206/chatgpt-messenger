@@ -38,6 +38,7 @@ def respond_to_user(prompt, recipient_id):
         except ServiceUnavailableError:
             print("Failed to send request to api, retrying...")
             time.sleep(10)
+            retries += 1
         else:
             break
 
