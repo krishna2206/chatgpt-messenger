@@ -3,7 +3,7 @@ import time
 
 from dotenv import load_dotenv
 # from fancify_text import bold, italic
-from openai.error import ServiceUnavailableError:
+from openai.error import ServiceUnavailableError
 
 from config import CHAT_HISTORIES
 from chatbot.user import User
