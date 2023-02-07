@@ -1,7 +1,9 @@
 import os
+import time
 
 from dotenv import load_dotenv
 # from fancify_text import bold, italic
+from openai.error import ServiceUnavailableError:
 
 from config import CHAT_HISTORIES
 from chatbot.user import User
@@ -29,7 +31,15 @@ def respond_to_user(prompt, recipient_id):
     except FileNotFoundError:
         print(f"Chat history for user {recipient_id} doesn't exist yet.")
 
-    response = chatbot.ask(prompt)
+    retries = 0
+    while retries < 5:
+        try:
+            response = chatbot.ask(prompt)
+        except ServiceUnavailableError:
+            print("Failed to send request to api, retrying...")
+            time.sleep(10)
+        else:
+            break
 
     send_api.send_text_message(response["choices"][0]["text"], recipient_id)
 
