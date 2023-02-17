@@ -5,3 +5,5 @@
 /old_src/
 **/__pycache__/
 *.env
+files/config/chatgpt/Official.json
+files/config/chatgpt/V1.json

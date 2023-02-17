@@ -1,5 +1,6 @@
 import os
 import inspect
+import traceback
 import functools
 
 from fancify_text import modifiers
@@ -30,4 +31,34 @@ def block_successive_actions(func):
             return False
         else:
             return func(*args, **kwargs)
+    return wrapper
+
+
+def safe_execute_action(action):
+    @functools.wraps(action)
+    def wrapper(*args, **kwargs):
+        recipient_id = kwargs.get("recipient_id")
+        if recipient_id is None:
+            arg_pos = list(inspect.signature(action).parameters).index("recipient_id")
+            recipient_id = args[arg_pos]
+
+        try:
+            action(*args, **kwargs)
+        except Exception as error:
+            if recipient_id == config.ADMIN_USER_ID:
+                send_api.send_text_message(
+                    "⚠️ Une erreur est survenue !"
+                    f"Exception: {type(error).__name__} - {error}",
+                    recipient_id)
+                send_api.send_text_message(
+                    traceback.format_exc(),
+                    recipient_id)
+
+            else:
+                send_api.send_text_message(
+                    "⚠️ Une erreur est survenue !\n" +
+                    "Veuillez contacter l'administrateur du bot. 👇\n\n" +
+                    "https://web.facebook.com/fitiavana.leonheart",
+                    recipient_id)
+
     return wrapper

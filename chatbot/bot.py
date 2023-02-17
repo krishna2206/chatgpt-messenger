@@ -20,7 +20,7 @@ class Bot:
         user = user_model.get_user(user_id)
         if user is None:
             print(f"Adding user {user_id} in the database")
-            user_model.add_user(user_id)
+            user_model.insert_user(user_id)
         else:
             user_model.update_user(user_id)
 
