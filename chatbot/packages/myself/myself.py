@@ -57,8 +57,10 @@ def respond_to_user(prompt, recipient_id):
 
             conversation_id, parent_id = __V1_respond_to_user(
                 chatgpt_config, conversation_id, parent_id, prompt, recipient_id)
-            chatgptuser_model.update_user(
-                recipient_id, conversation_id=conversation_id, parent_id=parent_id)
+
+            if (conversation_id is not None) and (parent_id is not None):
+                chatgptuser_model.update_user(
+                    recipient_id, conversation_id=conversation_id, parent_id=parent_id)
 
         else:
             send_api.send_text_message(
@@ -83,15 +85,21 @@ def __V1_respond_to_user(
         conversation_id = data["conversation_id"]
         parent_id = data["parent_id"]
 
-    if len(message) > 2000:
-        segments = divide_text(message)
-        for segment in segments:
-            send_api.send_text_message(
-                segment,
-                recipient_id)
-    else:
+    if message == "":
         send_api.send_text_message(
-            message,
+            "⚠️ Trop de requêtes en 1 heure, veuillez réessayer plus tard.",
             recipient_id)
+
+    else:
+        if len(message) > 2000:
+            segments = divide_text(message)
+            for segment in segments:
+                send_api.send_text_message(
+                    segment,
+                    recipient_id)
+        else:
+            send_api.send_text_message(
+                message,
+                recipient_id)
 
     return conversation_id, parent_id
