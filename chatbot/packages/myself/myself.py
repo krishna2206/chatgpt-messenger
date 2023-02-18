@@ -1,11 +1,11 @@
 from revChatGPT.V1 import Chatbot
-from chatbot.packages.myself.core.logic import load_config, divide_text
 
 from config import CHATGPT_MODE, ADMIN_USER_ID
 
 from chatbot.user import User
 from chatbot.sharedinstances import send_api
 
+from .core.logic import load_config, divide_text
 from .core.chatgptusers_model import ChatGPTUserModel
 from chatbot.packages.common.common import block_successive_actions, safe_execute_action
 
@@ -78,8 +78,8 @@ def __V1_respond_to_user(
     message = ""
     for data in chatbot.ask(prompt):
         message = data["message"]
-    conversation_id = data["conversation_id"]
-    parent_id = data["parent_id"]
+        conversation_id = data["conversation_id"]
+        parent_id = data["parent_id"]
 
     if len(message) > 2000:
         segments = divide_text(message)
