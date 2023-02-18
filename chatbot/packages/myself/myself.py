@@ -1,8 +1,7 @@
-import json
-
 from revChatGPT.V1 import Chatbot
+from chatbot.packages.myself.core.logic import load_config, divide_text
 
-from config import CHATGPT_MODE, CHATGPT_CONFIG, ADMIN_USER_ID
+from config import CHATGPT_MODE, ADMIN_USER_ID
 
 from chatbot.user import User
 from chatbot.sharedinstances import send_api
@@ -11,10 +10,6 @@ from .core.chatgptusers_model import ChatGPTUserModel
 from chatbot.packages.common.common import block_successive_actions, safe_execute_action
 
 chatgptuser_model = ChatGPTUserModel()
-
-def __load_config() -> dict:
-    with open(f"{CHATGPT_CONFIG}/{CHATGPT_MODE}.json", "r") as file:
-        return json.load(file)
 
 
 @block_successive_actions
@@ -32,7 +27,7 @@ def respond_to_user(prompt, recipient_id):
     user = User(recipient_id)
 
     try:
-        chatgpt_config = __load_config()
+        chatgpt_config = load_config()
     except FileNotFoundError:
         if recipient_id == ADMIN_USER_ID:
             send_api.send_text_message(
@@ -86,8 +81,15 @@ def __V1_respond_to_user(
     conversation_id = data["conversation_id"]
     parent_id = data["parent_id"]
 
-    send_api.send_text_message(
-        message,
-        recipient_id)
+    if len(message) > 2000:
+        segments = divide_text(message)
+        for segment in segments:
+            send_api.send_text_message(
+                segment,
+                recipient_id)
+    else:
+        send_api.send_text_message(
+            message,
+            recipient_id)
 
     return conversation_id, parent_id
