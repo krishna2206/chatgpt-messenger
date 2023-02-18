@@ -76,6 +76,8 @@ def __V1_respond_to_user(
         parent_id=parent_id)
 
     message = ""
+    conversation_id = None
+    parent_id = None
     for data in chatbot.ask(prompt):
         message = data["message"]
         conversation_id = data["conversation_id"]
