@@ -1,5 +1,5 @@
 from chatbot.packages.myself.myself import ask_clear_conversation_context, clear_conversation_context, fallback, respond_to_user, welcome_message
-from chatbot.packages.myself.core.parsers import get_text_message
+from chatbot.packages.myself.core.parsers import get_text_message, test_ask_clear_conversation_context
 
 
 INTENTS = [
@@ -20,6 +20,7 @@ INTENTS = [
     {
         "name": "ask_clear_conversation_context",
         "action": ask_clear_conversation_context,
+        "parser": test_ask_clear_conversation_context
     },
     {
         "name": "clear_conversation_context",
