@@ -9,11 +9,6 @@ INTENTS = [
         "action": fallback,
     },
     {
-        "name": "respond_to_user",
-        "action": respond_to_user,
-        "parser": get_text_message
-    },
-    {
         "name": "welcome_message",
         "action": welcome_message,
     },
@@ -25,5 +20,10 @@ INTENTS = [
     {
         "name": "clear_conversation_context",
         "action": clear_conversation_context,
+    },
+    {
+        "name": "respond_to_user",
+        "action": respond_to_user,
+        "parser": get_text_message
     }
 ]
