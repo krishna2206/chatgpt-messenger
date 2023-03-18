@@ -1,4 +1,5 @@
 import traceback
+import asyncio
 from datetime import datetime
 
 from revChatGPT.V1 import Chatbot as ChatbotV1, Error
@@ -79,7 +80,7 @@ def clear_conversation_context(clear: str, recipient_id: str):
 
 @safe_execute_action
 @block_successive_actions
-async def respond_to_user(prompt: str, recipient_id: str):
+def respond_to_user(prompt: str, recipient_id: str):
     user = User(recipient_id)
 
     try:
@@ -143,7 +144,7 @@ async def respond_to_user(prompt: str, recipient_id: str):
                 today = datetime.today()
 
                 if daily_free_messages > 0:
-                    await __edgegpt_respond_to_user(
+                    __edgegpt_respond_to_user(
                         edge_gpt_config, prompt, recipient_id)
 
                 else:
@@ -156,7 +157,7 @@ async def respond_to_user(prompt: str, recipient_id: str):
                             daily_free_messages=10,
                             last_message_date=float(today.timestamp()))
 
-                        await __edgegpt_respond_to_user(
+                        __edgegpt_respond_to_user(
                             edge_gpt_config, prompt, recipient_id)
                         
                     else:
@@ -257,12 +258,12 @@ def __V3_respond_to_user(openai_key: str, prompt: str, recipient_id: str):
             recipient_id)
 
 
-async def __edgegpt_respond_to_user(config: dict, prompt: str, recipient_id: str):
+def __edgegpt_respond_to_user(config: dict, prompt: str, recipient_id: str):
     chatbot = EdgeGPTChatbot(cookies=config.get("cookies"))
     
     message = ""
     try:
-        message = await chatbot.ask(prompt, conversation_style=ConversationStyle.precise)
+        message = asyncio.run(chatbot.ask(prompt, conversation_style=ConversationStyle.precise))
         message = message.get("item").get("messages")[1].get("text")
     except Exception:
         send_api.send_text_message(
