@@ -1,3 +1,4 @@
+from datetime import datetime
 from functools import reduce
 
 from chatbot.model import BaseModel
@@ -9,6 +10,11 @@ class ChatGPTUserModel(BaseModel):
             collection="chatgpt_users",
             base_document={
                 "user_id": "0000000000000000",
+                "email": None,
+                "password": None,
+                "openai_key": None,
+                "daily_free_messages": 10,
+                "last_message_date": datetime.today().timestamp(),
                 "conversation_id": None,
                 "parent_id": None
             },
@@ -18,6 +24,11 @@ class ChatGPTUserModel(BaseModel):
     def insert_user(self, user_id: str):
         self.collection.insert_one({
             "user_id": user_id,
+            "email": None,
+            "password": None,
+            "openai_key": None,
+            "daily_free_messages": 10,
+            "last_message_date": datetime.today().timestamp(),
             "conversation_id": None,
             "parent_id": None
         })

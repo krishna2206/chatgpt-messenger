@@ -1,10 +1,10 @@
 import json
 
-from config import CHATGPT_CONFIG, CHATGPT_MODE
+from config import CHATGPT_CONFIG
 
 
 def load_config() -> dict:
-    with open(f"{CHATGPT_CONFIG}/{CHATGPT_MODE}.json", "r") as file:
+    with open(f"{CHATGPT_CONFIG}/EdgeGPT.json", "r") as file:
         return json.load(file)
 
 

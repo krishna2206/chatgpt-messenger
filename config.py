@@ -60,5 +60,4 @@ CACHE_FOLDER_URL = f"{APP_URL}/files/cache"
 
 
 """Custom variables added"""
-CHATGPT_MODE = __verify_variable("CHATGPT_MODE", os.getenv("CHATGPT_MODE"))
 CHATGPT_CONFIG = __verify_path(f"{FILES_FOLDER}/config/chatgpt")

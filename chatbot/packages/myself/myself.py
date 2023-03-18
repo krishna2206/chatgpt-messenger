@@ -1,6 +1,11 @@
-from revChatGPT.V1 import Chatbot, Error
+import traceback
+from datetime import datetime
 
-from config import CHATGPT_MODE, ADMIN_USER_ID
+from revChatGPT.V1 import Chatbot as ChatbotV1, Error
+from revChatGPT.V3 import Chatbot as ChatbotV3
+from EdgeGPT import Chatbot as EdgeGPTChatbot, ConversationStyle
+
+from config import ADMIN_USER_ID
 
 from chatbot.user import User
 from chatbot.utils import Payload
@@ -30,28 +35,33 @@ def welcome_message(recipient_id):
 
 
 def ask_clear_conversation_context(recipient_id: str):
-    quickreplies = msgr_api_components.QuickReplies()
-
-    yes_quickrep = msgr_api_components.QuickReply(
-        title="✅ Oui",
-        payload=Payload(
-            target_action="clear_conversation_context",
-            clear="true").get_content()
+    send_api.send_text_message(
+        "⛔ Vous n'êtes pas autorisé à utiliser cette commande.",
+        recipient_id
     )
-    quickreplies.add_quick_reply(yes_quickrep.get_content())
 
-    no_quickrep = msgr_api_components.QuickReply(
-        title="❌ Non",
-        payload=Payload(
-            target_action="clear_conversation_context",
-            clear="false").get_content()
-    )
-    quickreplies.add_quick_reply(no_quickrep.get_content())
+    # quickreplies = msgr_api_components.QuickReplies()
 
-    send_api.send_quick_replies(
-        "⚠️ Voulez-vous vraiment effacer le contexte de la conversation ? (Le chatbot va oublier ce qu'il a appris)",
-        quickreplies.get_content(),
-        recipient_id)
+    # yes_quickrep = msgr_api_components.QuickReply(
+    #     title="✅ Oui",
+    #     payload=Payload(
+    #         target_action="clear_conversation_context",
+    #         clear="true").get_content()
+    # )
+    # quickreplies.add_quick_reply(yes_quickrep.get_content())
+
+    # no_quickrep = msgr_api_components.QuickReply(
+    #     title="❌ Non",
+    #     payload=Payload(
+    #         target_action="clear_conversation_context",
+    #         clear="false").get_content()
+    # )
+    # quickreplies.add_quick_reply(no_quickrep.get_content())
+
+    # send_api.send_quick_replies(
+    #     "⚠️ Voulez-vous vraiment effacer le contexte de la conversation ? (Le chatbot va oublier ce qu'il a appris)",
+    #     quickreplies.get_content(),
+    #     recipient_id)
 
 
 def clear_conversation_context(clear: str, recipient_id: str):
@@ -69,16 +79,18 @@ def clear_conversation_context(clear: str, recipient_id: str):
 
 @safe_execute_action
 @block_successive_actions
-def respond_to_user(prompt: str, recipient_id: str):
+async def respond_to_user(prompt: str, recipient_id: str):
     user = User(recipient_id)
 
     try:
-        chatgpt_config = load_config()
+        # ? Use EdgeGPT credentials for the public config
+        # TODO : to be inserted
+        edge_gpt_config = load_config()
     except FileNotFoundError:
         if recipient_id == ADMIN_USER_ID:
             send_api.send_text_message(
                 "⚠️ Le fichier de configuration du chatbot est introuvable.",
-                recipient_id)    
+                recipient_id)
         else:
             send_api.send_text_message(
                 "⚠️ Le fichier de configuration du chatbot est introuvable.\n" +
@@ -90,36 +102,91 @@ def respond_to_user(prompt: str, recipient_id: str):
             "⏳ Un instant, je vous réponds...",
             recipient_id)
 
-        if CHATGPT_MODE == "V1":
-            chatgpt_user = chatgptuser_model.get_user(recipient_id)
-            conversation_id = None
-            parent_id = None
+        chatgpt_user = chatgptuser_model.get_user(recipient_id)
+        email = None
+        password = None
+        openai_key = None
+        conversation_id = None
+        parent_id = None
+        daily_free_messages = 10
+        last_message_date = datetime.today().timestamp()
 
-            if chatgpt_user is None:
-                chatgptuser_model.insert_user(recipient_id)
-            else:
-                conversation_id = chatgpt_user["conversation_id"]
-                parent_id = chatgpt_user["parent_id"]
+        if chatgpt_user is None:
+            chatgptuser_model.insert_user(recipient_id)
+        else:
+            conversation_id = chatgpt_user["conversation_id"]
+            parent_id = chatgpt_user["parent_id"]
+            email = chatgpt_user["email"]
+            password = chatgpt_user["password"]
+            openai_key = chatgpt_user["openai_key"]
+            daily_free_messages = chatgpt_user["daily_free_messages"]
+            last_message_date = chatgpt_user["last_message_date"]
 
+        # ? V1
+        if (email is not None) and (password is not None):
             conversation_id, parent_id = __V1_respond_to_user(
-                chatgpt_config, conversation_id, parent_id, prompt, recipient_id)
+                edge_gpt_config, conversation_id, parent_id, prompt, recipient_id)
 
             if (conversation_id is not None) and (parent_id is not None):
                 chatgptuser_model.update_user(
                     recipient_id, conversation_id=conversation_id, parent_id=parent_id)
 
+        # ? V3
+        elif openai_key is not None:
+            __V3_respond_to_user(openai_key, prompt, recipient_id)
+
+        # ? EdgeGPT (if the user has not configured his account)
         else:
-            send_api.send_text_message(
-                "Mode de chatbot non reconnu 😵",
-                recipient_id)
+            WHITELISTED_USER_ID = (ADMIN_USER_ID, )
+
+            if recipient_id in WHITELISTED_USER_ID:
+                today = datetime.today()
+
+                if daily_free_messages > 0:
+                    await __edgegpt_respond_to_user(
+                        edge_gpt_config, prompt, recipient_id)
+
+                else:
+                    #? Verify if this is a new day
+                    last_message_date = datetime.fromtimestamp(last_message_date)
+
+                    if last_message_date.day != today.day:
+                        chatgptuser_model.update_user(
+                            recipient_id,
+                            daily_free_messages=10,
+                            last_message_date=float(today.timestamp()))
+
+                        await __edgegpt_respond_to_user(
+                            edge_gpt_config, prompt, recipient_id)
+                        
+                    else:
+                        send_api.send_text_message(
+                            "⛔ Vous avez utilisé tous vos messages gratuits pour aujourd'hui.\n" +
+                            "Veuillez revenir demain pour utiliser le chatbot gratuitement.",
+                            recipient_id)
+
+                chatgptuser_model.update_user(
+                    recipient_id,
+                    daily_free_messages=daily_free_messages - 1,
+                    last_message_date=float(today.timestamp()))
+
+            else:
+                send_api.send_text_message(
+                    "⚠️ Vous n'avez pas encore configuré votre compte.\n" +
+                    "Veuillez contactez l'administrateur du bot. 👇\n\n" +
+                    "https://web.facebook.com/fitiavana.leonheart",
+                    recipient_id)
 
 
 def __V1_respond_to_user(
-    config: dict, conversation_id: str,
-    parent_id: str, prompt: str, recipient_id: str
+    email: str, password: str,
+    conversation_id: str, parent_id: str, prompt: str, recipient_id: str
 ) -> tuple:
-    chatbot = Chatbot(
-        config=config,
+    chatbot = ChatbotV1(
+        config={
+            "email": email,
+            "password": password,
+        },
         conversation_id=conversation_id,
         parent_id=parent_id)
 
@@ -140,6 +207,14 @@ def __V1_respond_to_user(
         if error_code == 524:
             send_api.send_text_message(
                 "⚠️ Le serveur est actuellement surchargé, veuillez réessayer plus tard.",
+                recipient_id)
+        elif error_code == 429:
+            send_api.send_text_message(
+                "⚠️ Vous avez envoyé beaucoup de messages aujourd'hui, veuillez réessayer plus tard.",
+                recipient_id)
+        elif error_code == 401:
+            send_api.send_text_message(
+                "⚠️ Oh non ! Votre compte a été banni !",
                 recipient_id)
         else:
             send_api.send_text_message(
@@ -164,3 +239,46 @@ def __V1_respond_to_user(
                     recipient_id)
 
     return conversation_id, parent_id
+
+
+def __V3_respond_to_user(openai_key: str, prompt: str, recipient_id: str):
+    chatbot = ChatbotV3(api_key=openai_key)
+    message = chatbot.ask(prompt)
+
+    if len(message) > 2000:
+        segments = divide_text(message)
+        for segment in segments:
+            send_api.send_text_message(
+                segment,
+                recipient_id)
+    else:
+        send_api.send_text_message(
+            message,
+            recipient_id)
+
+
+async def __edgegpt_respond_to_user(config: dict, prompt: str, recipient_id: str):
+    chatbot = EdgeGPTChatbot(cookies=config.get("cookies"))
+    
+    message = ""
+    try:
+        message = await chatbot.ask(prompt, conversation_style=ConversationStyle.precise)
+    except Exception:
+        send_api.send_text_message(
+            "⚠️ Une erreur est survenue !",
+            recipient_id)
+        if recipient_id == ADMIN_USER_ID:
+            send_api.send_text_message(
+                traceback.format_exc(),
+                recipient_id)
+    else:
+        if len(message) > 2000:
+            segments = divide_text(message)
+            for segment in segments:
+                send_api.send_text_message(
+                    segment,
+                    recipient_id)
+        else:
+            send_api.send_text_message(
+                message,
+                recipient_id)

@@ -7,3 +7,4 @@
 *.env
 files/config/chatgpt/Official.json
 files/config/chatgpt/V1.json
+files/config/chatgpt/EdgeGPT.json
