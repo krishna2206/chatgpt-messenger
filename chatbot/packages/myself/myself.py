@@ -85,7 +85,6 @@ def respond_to_user(prompt: str, recipient_id: str):
 
     try:
         # ? Use EdgeGPT credentials for the public config
-        # TODO : to be inserted
         edge_gpt_config = load_config()
     except FileNotFoundError:
         if recipient_id == ADMIN_USER_ID:
@@ -99,10 +98,6 @@ def respond_to_user(prompt: str, recipient_id: str):
                 "https://web.facebook.com/fitiavana.leonheart",
                 recipient_id)
     else:
-        send_api.send_text_message(
-            "⏳ Un instant, je vous réponds...",
-            recipient_id)
-
         chatgpt_user = chatgptuser_model.get_user(recipient_id)
         email = None
         password = None
@@ -183,6 +178,10 @@ def __V1_respond_to_user(
     email: str, password: str,
     conversation_id: str, parent_id: str, prompt: str, recipient_id: str
 ) -> tuple:
+    send_api.send_text_message(
+        "⏳ Un instant, je vous réponds...",
+        recipient_id)
+
     chatbot = ChatbotV1(
         config={
             "email": email,
@@ -243,6 +242,10 @@ def __V1_respond_to_user(
 
 
 def __V3_respond_to_user(openai_key: str, prompt: str, recipient_id: str):
+    send_api.send_text_message(
+        "⏳ Un instant, je vous réponds...",
+        recipient_id)
+
     chatbot = ChatbotV3(api_key=openai_key)
     message = chatbot.ask(prompt)
 
@@ -259,6 +262,10 @@ def __V3_respond_to_user(openai_key: str, prompt: str, recipient_id: str):
 
 
 def __edgegpt_respond_to_user(config: dict, prompt: str, recipient_id: str):
+    send_api.send_text_message(
+        "⏳ Un instant, je vous réponds...",
+        recipient_id)
+
     chatbot = EdgeGPTChatbot(cookies=config.get("cookies"))
     
     message = ""
