@@ -263,6 +263,7 @@ async def __edgegpt_respond_to_user(config: dict, prompt: str, recipient_id: str
     message = ""
     try:
         message = await chatbot.ask(prompt, conversation_style=ConversationStyle.precise)
+        message = message.get("item").get("messages")[1].get("text")
     except Exception:
         send_api.send_text_message(
             "⚠️ Une erreur est survenue !",
