@@ -7,7 +7,7 @@ def get_text_message(message):
     }
 
 
-def test_ask_clear_conversation_context(message):
+def test_ask_reset_conversation(message):
     command = message.get_text_content().strip().lower()
 
     if command == "/reset":

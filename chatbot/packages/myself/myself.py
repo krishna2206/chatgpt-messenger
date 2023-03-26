@@ -92,9 +92,9 @@ def reset_conversation(clear: str, recipient_id: str):
 
 
 @safe_execute_action
-@block_successive_actions
+# @block_successive_actions
 def respond_to_user(prompt: str, recipient_id: str):
-    user = User(recipient_id)
+    # user = User(recipient_id)
 
     try:
         # ? Use EdgeGPT credentials for the public config
