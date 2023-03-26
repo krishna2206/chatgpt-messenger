@@ -10,7 +10,7 @@ def get_text_message(message):
 def test_ask_clear_conversation_context(message):
     command = message.get_text_content().strip().lower()
 
-    if command == "/clearcontext":
+    if command == "/reset":
         return {
             "is_validated": True,
             "extracted_data": None

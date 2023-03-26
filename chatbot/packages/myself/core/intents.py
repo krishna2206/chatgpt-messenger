@@ -1,4 +1,4 @@
-from chatbot.packages.myself.myself import ask_clear_conversation_context, clear_conversation_context, fallback, respond_to_user, welcome_message
+from chatbot.packages.myself.myself import ask_reset_conversation, reset_conversation, fallback, respond_to_user, welcome_message
 from chatbot.packages.myself.core.parsers import get_text_message, test_ask_clear_conversation_context
 
 
@@ -13,13 +13,13 @@ INTENTS = [
         "action": welcome_message,
     },
     {
-        "name": "ask_clear_conversation_context",
-        "action": ask_clear_conversation_context,
+        "name": "ask_reset_conversation",
+        "action": ask_reset_conversation,
         "parser": test_ask_clear_conversation_context
     },
     {
-        "name": "clear_conversation_context",
-        "action": clear_conversation_context,
+        "name": "reset_conversation",
+        "action": reset_conversation,
     },
     {
         "name": "respond_to_user",

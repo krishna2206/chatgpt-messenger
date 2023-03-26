@@ -26,7 +26,7 @@ def block_successive_actions(func):
 
         if os.path.exists(f"{config.TEMP_FOLDER}/user_{recipient_id}"):
             send_api.send_text_message(
-                "Je suis en train d'écrire le message ✍️...",
+                "Je suis en train d'écrire le message 😺✍️...",
                 recipient_id)
             return False
         else:
