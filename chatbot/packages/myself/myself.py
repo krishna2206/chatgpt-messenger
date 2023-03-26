@@ -2,17 +2,19 @@ import traceback
 import asyncio
 from datetime import datetime
 
-from revChatGPT.V1 import Chatbot as ChatbotV1, Error
+from revChatGPT.typings import Error
+from revChatGPT.V1 import Chatbot as ChatbotV1
 from revChatGPT.V3 import Chatbot as ChatbotV3
 from EdgeGPT import Chatbot as EdgeGPTChatbot, ConversationStyle
 
-from config import ADMIN_USER_ID
+from config import ADMIN_USER_ID, FB_ACCESS_TOKEN
 
 from chatbot.user import User
 from chatbot.utils import Payload
 from chatbot.sharedinstances import send_api, msgr_api_components
 
 from .core.logic import load_config, divide_text
+from .core.dependencies.pageusers import GraphApiError, PageUser
 from .core.chatgptusers_model import ChatGPTUserModel
 from chatbot.packages.common.common import block_successive_actions, safe_execute_action
 
@@ -246,7 +248,16 @@ def __V3_respond_to_user(openai_key: str, prompt: str, recipient_id: str):
         "⏳ Un instant, je vous réponds...",
         recipient_id)
 
-    chatbot = ChatbotV3(api_key=openai_key)
+    system_prompt = "You are ChatGPT, a large language model trained by OpenAI. Respond conversationally"
+
+    try:
+        user_info = PageUser(FB_ACCESS_TOKEN, recipient_id)
+    except GraphApiError:
+        pass
+    else:
+        system_prompt += f"\nMy name is {user_info.first_name} {user_info.last_name}"
+
+    chatbot = ChatbotV3(api_key=openai_key, system_prompt=system_prompt)
     message = chatbot.ask(prompt)
 
     if len(message) > 2000:
