@@ -5,6 +5,6 @@ python-dotenv
 uvicorn
 dnspython
 pytz
-revChatGPT
-edgeGPT
+revChatGPT==4.0.6.1
+edgeGPT==0.1.10
 git+https://github.com/krishna2206/messenger-api-python.git@03687e87be09aa534ebdac2fff1861665295df63#egg=messenger-api-python
